@@ -8,48 +8,65 @@ import pytest
 from unittest.mock import mock_open, call
 
 from risk_api.app import api
+from risk_api.constants import Constants as c
 
 
 @pytest.fixture
 def client():
     return testing.TestClient(api)
 
-
-# pytest will inject the object returned by the "client" function
-# as an additional parameter.
-def test_list_images(client):
-    doc = {
-        'a': 'b'
+@pytest.fixture
+def base_data():
+    return {
+      c.DATA_AGE: 35,
+      c.DATA_DEPENDENTS: 2,
+      c.DATA_HOUSE: {c.DATA_OWNERSHIP_STATUS: c.DATA_OS_OWNED},
+      c.DATA_INCOME: 0,
+      c.DATA_MARITAL_STATUS: c.DATA_MS_MARRIED,
+      c.DATA_RISK_QUESTIONS: [0, 1, 0],
+      c.DATA_VEHICLE: {c.DATA_V_YEAR: 2018}
     }
 
-    response = client.simulate_get('/calculator')
-    print("===============")
-    print(response.content)
-    result_doc = json.loads(response.content)
 
-    assert result_doc == doc
-    assert response.status == falcon.HTTP_OK
-
-
-# "monkeypatch" is a special built-in pytest fixture that can be
-# used to install mocks.
-def test_posted_image_gets_saved(client, monkeypatch):
-    mock_file_open = mock_open()
-    monkeypatch.setattr('io.open', mock_file_open)
-
-    fake_uuid = '123e4567-e89b-12d3-a456-426655440000'
-    monkeypatch.setattr('uuid.uuid4', lambda: fake_uuid)
-
-    # When the service receives an image through POST...
-    fake_image_bytes = b'fake-image-bytes'
+def test_inelegible_for_auto(client, base_data):
+    base_data[c.DATA_VEHICLE] = {}
     response = client.simulate_post(
         '/calculator',
-        body=fake_image_bytes,
-        headers={'content-type': 'image/png'}
+        body=json.dumps(base_data),
+        headers={'content-type': 'application/json'}
     )
+    assert response.json[c.INS_AUTO] == c.PLAN_INELEGIBLE
+    assert response.status == falcon.HTTP_OK
 
-    # ...it must return a 201 code, save the file, and return the
-    # image's resource location.
-    assert response.status == falcon.HTTP_CREATED
-    assert call().write(fake_image_bytes) in mock_file_open.mock_calls
-    assert response.headers['location'] == '/calculator/{}.png'.format(fake_uuid)
+def test_inelegible_for_disability_by_income(client, base_data):
+    base_data[c.DATA_INCOME] = 0
+    response = client.simulate_post(
+        '/calculator',
+        body=json.dumps(base_data),
+        headers={'content-type': 'application/json'}
+    )
+    assert response.json[c.INS_DISABILITY] == c.PLAN_INELEGIBLE
+    assert response.status == falcon.HTTP_OK
+
+def test_inelegible_for_disability_by_age(client, base_data):
+    base_data[c.DATA_AGE] = 88
+    response = client.simulate_post(
+        '/calculator',
+        body=json.dumps(base_data),
+        headers={'content-type': 'application/json'}
+    )
+    assert response.json[c.INS_DISABILITY] == c.PLAN_INELEGIBLE
+    assert response.status == falcon.HTTP_OK
+
+def test_inelegible_for_house(client, base_data):
+    base_data[c.DATA_HOUSE] = {}
+    response = client.simulate_post(
+        '/calculator',
+        body=json.dumps(base_data),
+        headers={'content-type': 'application/json'}
+    )
+    assert response.json[c.INS_HOME] == c.PLAN_INELEGIBLE
+    assert response.status == falcon.HTTP_OK
+
+def test_default_score(client, base_data):
+    pass

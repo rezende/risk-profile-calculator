@@ -3,9 +3,8 @@
 
 import falcon
 
-from .calculator import Calculator
+from .risk_profile_resource import RiskProfileResource
 
 api = application = falcon.API()
 
-calculator = Calculator(storage_path='.')
-api.add_route('/calculator', calculator)
+api.add_route('/calculator', RiskProfileResource())

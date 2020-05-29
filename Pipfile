@@ -7,6 +7,8 @@ verify_ssl = true
 neovim = "*"
 httpie = "*"
 pytest = '*'
+ipython = "*"
+pudb = "*"
 
 [packages]
 falcon = "==2.0.0"
