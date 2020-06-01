@@ -4,14 +4,14 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
-httpie = "*"
-pytest = '*'
-pytest-mock = "*"
+httpie = "==2.1.0"
+pytest = "==5.4.2"
+pytest-mock = "==3.1.0"
 
 [packages]
 falcon = "==2.0.0"
-gunicorn = "*"
-jsonschema = "*"
+gunicorn = "==20.0.4"
+jsonschema = "==3.2.0"
 
 [requires]
 python_version = "3.6"
