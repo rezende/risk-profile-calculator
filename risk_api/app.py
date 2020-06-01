@@ -3,7 +3,7 @@
 
 import falcon
 
-from .risk_profile_resource import RiskProfileResource
+from risk_api.resources import RiskProfileResource
 
 api = application = falcon.API()
 
