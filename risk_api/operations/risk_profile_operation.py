@@ -115,5 +115,5 @@ class RiskProfileOperation:
     def _apply_vehicle_factor(self):
         if self.user_data[c.DATA_VEHICLE]:
             currentYear = datetime.now().year
-            if abs(self.user_data[c.DATA_VEHICLE][c.DATA_V_YEAR] - currentYear) <= 5:
+            if abs(self.user_data[c.DATA_VEHICLE][c.DATA_V_YEAR] - currentYear) <= c.CAR_DEPRECATION_TIME:
                 self._modify_score_points(c.KEY_AUTO, 1)

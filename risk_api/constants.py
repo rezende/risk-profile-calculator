@@ -30,7 +30,7 @@ class Constants:
     AGE_RANGE_1 = 30
     AGE_RANGE_2 = 40
     AGE_RANGE_3 = 60
-    CAR_DEPRECATION = 5
+    CAR_DEPRECATION_TIME = 5
 
     # insurance lines
     INS_AUTO = "auto"
